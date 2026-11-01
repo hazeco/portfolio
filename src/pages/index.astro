@@ -1,0 +1,48 @@
+---
+import Layout from '../layouts/Layout.astro';
+import Hero from '../components/Hero.astro';
+import About from '../components/About.astro';
+import Projects from '../components/Projects.astro';
+import LogoCloud from '../components/LogoCloud.astro';
+import Skills from '../components/Skills.astro';
+import Experience from '../components/Experience.astro';
+import FAQ from '../components/FAQ.astro';
+import Contact from '../components/Contact.astro';
+---
+
+<Layout
+  title="Khetsophon Ainautoon — Full-Stack Engineer · hazeco"
+  description="Khetsophon Ainautoon (hazeco) — Full-stack Software Engineer & Founder of Vennflare. Open to SWE internships (2027 cycle) & freelance projects."
+>
+  <!-- Group 1: Open to SWE internships ... ถึง About (Brand กดมาหน้านี้) -->
+  <div data-view="home" class="view-group">
+    <Hero />
+    <About />
+  </div>
+
+  <!-- Group 2: Projects ถึง Core stack (กด Projects) -->
+  <div data-view="projects" class="view-group">
+    <Projects />
+    <LogoCloud />
+  </div>
+
+  <!-- Group 3: Toolbox (กด Skills) -->
+  <div data-view="skills" class="view-group">
+    <Skills />
+  </div>
+
+  <!-- Group 4: Journey (กด Experience) -->
+  <div data-view="experience" class="view-group">
+    <Experience />
+  </div>
+
+  <!-- Group 5: FAQ (กด FAQ) -->
+  <div data-view="faq" class="view-group">
+    <FAQ />
+  </div>
+
+  <!-- Group 6: Contact (กด Contact) -->
+  <div data-view="contact" class="view-group">
+    <Contact />
+  </div>
+</Layout>

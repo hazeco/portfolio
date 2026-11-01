@@ -1,0 +1,148 @@
+---
+import '../styles/global.css';
+import { ClientRouter } from 'astro:transitions';
+import GradientBlinds from '../components/GradientBlinds.astro';
+import Navbar from '../components/Navbar.astro';
+import Footer from '../components/Footer.astro';
+import LinkPreview from '../components/LinkPreview.astro';
+
+interface Props {
+  title?: string;
+  description?: string;
+  image?: string;
+}
+
+const {
+  title = 'Khetsophon Ainautoon — Portfolio',
+  description = 'Khetsophon Ainautoon (hazeco) — Full-stack Software Engineer. Open to SWE internships & freelance projects.',
+  image = '/og.jpg',
+} = Astro.props;
+
+const siteUrl = Astro.site ? Astro.site.toString() : 'https://hazeco.dev';
+const canonicalUrl = new URL(Astro.url.pathname, siteUrl).toString();
+const ogImageUrl = new URL(image, siteUrl).toString();
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg?v=2" />
+    <link rel="icon" href="/favicon.ico?v=2" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="color-scheme" content="dark" />
+    <meta name="generator" content={Astro.generator} />
+    <meta name="description" content={description} />
+    <title>{title}</title>
+    <link rel="canonical" href={canonicalUrl} />
+
+    <!-- Open Graph / Facebook / LINE / Discord -->
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content={canonicalUrl} />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:image" content={ogImageUrl} />
+    <meta property="og:image:secure_url" content={ogImageUrl} />
+    <meta property="og:image:type" content="image/jpeg" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content="Khetsophon Ainautoon Portfolio" />
+
+    <!-- Twitter / X -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:url" content={canonicalUrl} />
+    <meta name="twitter:title" content={title} />
+    <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content={ogImageUrl} />
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800&family=Manrope:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&family=Noto+Sans+Thai:wght@400;600&display=swap"
+      rel="stylesheet"
+    />
+
+    <!-- Immediate Language Bootstrapper (Runs before DOM paint to prevent flash) -->
+    <script is:inline>
+      (function() {
+        function getSavedLang() {
+          try {
+            return localStorage.getItem('portfolio_lang') || 'en';
+          } catch(e) {
+            return 'en';
+          }
+        }
+        var initialLang = getSavedLang();
+        if (initialLang === 'th') {
+          document.documentElement.classList.add('lang-th');
+          document.documentElement.setAttribute('lang', 'th');
+          document.documentElement.setAttribute('data-lang', 'th');
+        } else {
+          document.documentElement.classList.remove('lang-th');
+          document.documentElement.setAttribute('lang', 'en');
+          document.documentElement.setAttribute('data-lang', 'en');
+        }
+
+        window.setPortfolioLanguage = function(lang) {
+          var isThai = lang === 'th';
+          if (isThai) {
+            document.documentElement.classList.add('lang-th');
+            document.documentElement.setAttribute('lang', 'th');
+            document.documentElement.setAttribute('data-lang', 'th');
+          } else {
+            document.documentElement.classList.remove('lang-th');
+            document.documentElement.setAttribute('lang', 'en');
+            document.documentElement.setAttribute('data-lang', 'en');
+          }
+          try {
+            localStorage.setItem('portfolio_lang', isThai ? 'th' : 'en');
+          } catch (e) {}
+
+          // Update toggle pill styles
+          var pillsEn = document.querySelectorAll('.lang-pill-en');
+          for (var i = 0; i < pillsEn.length; i++) {
+            pillsEn[i].className = isThai ? 'lang-pill-en text-[#c9c2dc]' : 'lang-pill-en text-white font-semibold';
+          }
+          var pillsTh = document.querySelectorAll('.lang-pill-th');
+          for (var i = 0; i < pillsTh.length; i++) {
+            pillsTh[i].className = isThai ? 'lang-pill-th text-white font-semibold' : 'lang-pill-th text-[#c9c2dc]';
+          }
+          var mobileLabels = document.querySelectorAll('.lang-mobile-label');
+          for (var i = 0; i < mobileLabels.length; i++) {
+            mobileLabels[i].textContent = isThai ? 'TH' : 'EN';
+          }
+          var drawerLabels = document.querySelectorAll('.lang-drawer-label');
+          for (var i = 0; i < drawerLabels.length; i++) {
+            drawerLabels[i].textContent = isThai ? 'ภาษาไทย (TH)' : 'English (EN)';
+          }
+        };
+
+        window.togglePortfolioLanguage = function() {
+          var isThai = document.documentElement.classList.contains('lang-th') || document.documentElement.getAttribute('data-lang') === 'th';
+          window.setPortfolioLanguage(isThai ? 'en' : 'th');
+        };
+      })();
+    </script>
+
+    <ClientRouter />
+  </head>
+  <body class="min-h-screen flex flex-col justify-between selection:bg-[#ffb347]/30 selection:text-white">
+    <!-- WebGL Live Gradient Blinds Background persisted across route transitions -->
+    <div transition:persist="gradient-blinds">
+      <GradientBlinds />
+    </div>
+
+    <!-- Main Portfolio Content Wrapped in Responsive Container -->
+    <div class="relative z-10 w-full max-w-[1180px] mx-auto px-3.5 sm:px-5 pb-12 flex-1 flex flex-col justify-between">
+      <Navbar />
+
+      <main id="top" class="flex-1 w-full my-3">
+        <slot />
+      </main>
+
+      <Footer />
+    </div>
+
+    <LinkPreview />
+  </body>
+</html>

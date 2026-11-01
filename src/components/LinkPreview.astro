@@ -1,0 +1,113 @@
+---
+---
+<div class="link-preview fixed z-50 w-[300px] max-w-[calc(100vw-24px)] bg-[#080610]/95 border border-white/20 rounded-2xl overflow-hidden shadow-2xl opacity-0 translate-y-1.5 scale-[0.98] pointer-events-none transition-all duration-200" id="linkPreview" role="tooltip" aria-hidden="true">
+  <div class="h-[150px] bg-gradient-to-br from-[#ffb347] via-[#e9407a] to-[#5227ff] grid place-items-center relative overflow-hidden">
+    <span class="font-heading font-extrabold text-2xl text-white text-center px-4 leading-snug drop-shadow-md" id="lpFallback">hazeco</span>
+    <img id="lpImg" alt="" class="absolute inset-0 w-full h-full object-cover object-top" hidden />
+  </div>
+  <div class="p-3.5">
+    <div class="font-mono-code text-[11px] text-[#ffb347] tracking-wider" id="lpHost"></div>
+    <div class="font-heading text-sm font-bold text-white mt-1 leading-snug" id="lpTitle"></div>
+    <p class="text-xs text-[#c9c2dc] mt-1 leading-relaxed line-clamp-3" id="lpDesc"></p>
+    <div class="text-[11px] text-[#9a92b3] mt-1.5" id="lpNote" hidden>Live preview unavailable — showing link details instead.</div>
+  </div>
+</div>
+
+<style>
+  :global(.link-preview.show) {
+    opacity: 1 !important;
+    transform: translateY(0) scale(1) !important;
+  }
+</style>
+
+<script>
+  function initLinkPreview() {
+    const lp = document.getElementById('linkPreview');
+    const lpImg = document.getElementById('lpImg') as HTMLImageElement | null;
+    const lpFallback = document.getElementById('lpFallback');
+    const lpHost = document.getElementById('lpHost');
+    const lpTitle = document.getElementById('lpTitle');
+    const lpDesc = document.getElementById('lpDesc');
+    const lpNote = document.getElementById('lpNote');
+    const fine = window.matchMedia('(hover: hover) and (pointer: fine)').matches;
+
+    if (!lp || !lpImg || !lpFallback || !lpHost || !lpTitle || !lpDesc || !lpNote) return;
+
+    function describeLink(a: HTMLAnchorElement) {
+      const card = a.closest('article, .contact, .skills, footer, div');
+      let title = (a.textContent || '').trim().replace(/\s+/g, ' ').replace(/↗/g, '').trim();
+      let desc = '';
+      if (card) {
+        const h = card.querySelector('h3, h2');
+        if (h) title = h.textContent?.trim() || title;
+        const par = card.querySelector('p');
+        if (par) desc = par.textContent?.trim() || '';
+      }
+      if (!desc) desc = 'Opens ' + a.href + ' in a new tab.';
+      return { title: title || a.href, desc };
+    }
+
+    function showPreview(a: HTMLAnchorElement) {
+      if (!fine || !lp || !lpImg || !lpFallback || !lpHost || !lpTitle || !lpDesc || !lpNote) return;
+      const info = describeLink(a);
+      const host = a.hostname || a.href;
+      lpHost.textContent = host;
+      lpTitle.textContent = info.title;
+      lpDesc.textContent = info.desc;
+      lpFallback.textContent = host.replace(/^www\./, '');
+      lpNote.hidden = true;
+      lpImg.hidden = true;
+      lpImg.removeAttribute('src');
+
+      const shot = 'https://s.wordpress.com/mshots/v1/' + encodeURIComponent(a.href) + '?w=600';
+      const probe = new Image();
+      probe.onload = () => {
+        if (probe.naturalWidth > 40) {
+          lpImg.src = shot;
+          lpImg.hidden = false;
+        } else {
+          lpNote.hidden = false;
+        }
+      };
+      probe.onerror = () => {
+        lpNote.hidden = false;
+      };
+      probe.src = shot;
+
+      const r = a.getBoundingClientRect();
+      const w = 300, h = 288;
+      const x = Math.min(Math.max(12, r.left + r.width / 2 - w / 2), window.innerWidth - w - 12);
+      let y = r.top - h - 12;
+      if (y < 12) y = r.bottom + 12;
+
+      lp.style.left = `${x}px`;
+      lp.style.top = `${y}px`;
+      lp.classList.add('show');
+      lp.setAttribute('aria-hidden', 'false');
+    }
+
+    function hidePreview() {
+      if (!lp) return;
+      lp.classList.remove('show');
+      lp.setAttribute('aria-hidden', 'true');
+    }
+
+    document.querySelectorAll('a[target="_blank"]').forEach((el) => {
+      const a = el as HTMLAnchorElement;
+      a.addEventListener('mouseenter', () => showPreview(a));
+      a.addEventListener('mouseleave', hidePreview);
+      a.addEventListener('focus', () => showPreview(a));
+      a.addEventListener('blur', hidePreview);
+    });
+
+    window.addEventListener('scroll', hidePreview, { passive: true });
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initLinkPreview);
+  } else {
+    initLinkPreview();
+  }
+  document.addEventListener('astro:page-load', initLinkPreview);
+</script>
+

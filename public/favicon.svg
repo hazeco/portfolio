@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" fill="none">
+  <!-- Black rounded square background -->
+  <rect width="512" height="512" rx="128" fill="#08070d"/>
+  
+  <!-- Subtle border for dark browser tab visibility -->
+  <rect x="2" y="2" width="508" height="508" rx="126" stroke="#ffffff" stroke-opacity="0.15" stroke-width="4"/>
+
+  <!-- Bold Modern 'H' Letter in Crisp White -->
+  <path d="M148 116 C148 107.163 155.163 100 164 100 L188 100 C196.837 100 204 107.163 204 116 L204 220 L308 220 L308 116 C308 107.163 315.163 100 324 100 L348 100 C356.837 100 364 107.163 364 116 L364 396 C364 404.837 356.837 412 348 412 L324 412 C315.163 412 308 404.837 308 396 L308 276 L204 276 L204 396 C204 404.837 196.837 412 188 412 L164 412 C155.163 412 148 404.837 148 396 Z" fill="#FFFFFF"/>
+</svg>

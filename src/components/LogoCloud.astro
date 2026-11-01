@@ -1,0 +1,236 @@
+---
+// ─── Icon sources ────────────────────────────────────────────────────────────
+// icon: 'key'   → skillicons.dev   https://skillicons.dev
+// slug: 'slug'  → devicons.io CDN  https://devicons.io/icons/{slug}/
+//
+// เพิ่ม icon:
+//   skillicons → { name: 'Bun',   icon: 'bun' }
+//   devicons   → { name: 'Nginx', slug: 'nginx' } // พื้นหลังดีฟอลต์ #242938
+//   devicons   → { name: 'Git',   slug: 'git', bg: '#f14e32' } // กำหนดสีพื้นหลังเองได้ (hex, rgb, หรือชื่อสี)
+// ────────────────────────────────────────────────────────────────────────────
+
+type Skill =
+  | { name: string; icon: string; slug?: never; bg?: never }
+  | { name: string; slug: string; bg?: string; icon?: never };
+
+function src(s: Skill) {
+  return s.icon
+    ? `https://skillicons.dev/icons?i=${s.icon}`
+    : `https://devicons.io/devicons/icons/${s.slug}.svg`;
+}
+
+// Total items: 69 skills
+const skills: Skill[] = [
+  // ─── 1. Languages & Core (7) ──────────────────────
+  { name: 'TypeScript',      icon: 'ts' },
+  { name: 'JavaScript',      icon: 'js' },
+  { name: 'Java',            icon: 'java' },
+  { name: 'C#',              icon: 'cs' },
+  { name: 'HTML',            icon: 'html' },
+  { name: 'CSS',             icon: 'css' },
+
+  // ─── 2. Frontend Frameworks & UI (10) ──────────────
+  { name: 'React',           icon: 'react' },
+  { name: 'Next.js',         icon: 'nextjs' },
+  { name: 'Vite',            icon: 'vite' },
+  { name: 'Tailwind',        icon: 'tailwind' },
+  { name: 'Dotnet',          icon: 'dotnet' },
+  { name: 'Astro',           icon: 'astro' },
+  { name: 'Bootsrap',        icon: 'bootstrap' },
+  { name: 'Shadcn-ui',       slug: 'shadcn-ui', bg: '#ffffff' },
+  { name: 'Tanstack',        slug: 'tanstack-icon', bg: '#ffffff' },
+  { name: 'Canva',           slug: 'canva' },
+
+  // ─── 3. Backend, APIs & Networking (11) ───────────
+  { name: 'Node.js',         icon: 'nodejs' },
+  { name: 'Express',         icon: 'express' },
+  { name: 'Hono',            slug: 'hono' },
+  { name: 'Axios',           slug: 'axios', bg: '#ffffff' },
+  { name: 'Fetch',           slug: 'fetch' },
+  { name: 'Curl',            slug: 'curl', bg: '#ffffff' },
+  { name: 'Postman',         icon: 'postman' },
+  { name: 'Webhooks',        slug: 'webhooks', bg: '#ffffff' },
+  { name: 'Websocket',       slug: 'websocket', bg: '#ffffff' },
+  { name: 'Mcp',             slug: 'mcp-icon', bg: '#ffffff' },
+
+  // ─── 4. Databases & ORM & Caching (8) ─────────────
+  { name: 'MySQL',           icon: 'mysql' },
+  { name: 'PostgreSQL',      icon: 'postgres' },
+  { name: 'Sqlite',          icon: 'sqlite' },
+  { name: 'Chai',            slug: 'neon', bg: '#ffffff' },
+  { name: 'Prisma',          icon: 'prisma' },
+  { name: 'Drizzle',          slug: 'drizzle-orm', bg: '#ffffff' },
+  { name: 'Redis',           icon: 'redis' },
+  { name: 'Upstash',         slug: 'upstash' },
+  { name: 'Supabase',        icon: 'supabase' },
+  { name: 'Neon',        slug: 'neon-icon' },
+
+  // ─── 5. Cloud, DevOps & Edge (8) ──────────────────
+  { name: 'Cloudflare',      icon: 'cloudflare' },
+  { name: 'Workers',         icon: 'workers' },
+  { name: 'Vercel',          icon: 'vercel' },
+  { name: 'Docker',          icon: 'docker' },
+  { name: 'Nginx',           slug: 'nginx' },
+  { name: 'Terminal',        slug: 'terminal', bg: '#ffffff' },
+  { name: 'Bash',            icon: 'bash' },
+
+  // ─── 6. AI & Assistants (5) ───────────────────────
+  { name: 'Claude',          slug: 'claude-icon', bg: '#ffffff' },
+  { name: 'Claude-code',     slug: 'claude-code' },
+  { name: 'Gemin',           slug: 'google-gemini', bg: '#ffffff' },
+  { name: 'Github-copilot',  slug: 'github-copilot', bg: '#ffffff' },
+  { name: 'Antigravity',     slug: 'google-antigravity-icon' },
+
+  // ─── 7. Testing & Quality (3) ─────────────────────
+  { name: 'Mocha',           slug: 'mocha' },
+  { name: 'Chai',            slug: 'chai' },
+  { name: 'Eslint',          slug: 'eslint' },
+
+  // ─── 8. Formats & Config (5) ──────────────────────
+  { name: 'Env',             slug: 'env', bg: '#ffffff' },
+  { name: 'Json',            slug: 'json' },
+  { name: 'Yaml',            slug: 'yaml', bg: '#ffffff' },
+  { name: 'Md',              icon: 'md' },
+
+  // ─── 9. Tools, Editor & Package Managers (12) ─────
+  { name: 'Git',             icon: 'git' },
+  { name: 'GitHub',          icon: 'github' },
+  { name: 'Vscode',          icon: 'vscode' },
+  { name: 'Figma',           icon: 'figma' },
+  { name: 'Npm',             icon: 'npm' },
+  { name: 'Pnpm',            icon: 'pnpm' },
+];
+---
+
+<section class="logo-cloud mt-4.5 bg-[#0a0912]/90 border border-white/10 rounded-3xl backdrop-blur-md p-4 sm:p-6 grid grid-cols-1 lg:grid-cols-[160px_1fr] gap-3 lg:gap-6 items-center" aria-label="Core technology stack">
+  <div class="font-mono-code text-[11px] tracking-widest uppercase text-[#ffb347] leading-relaxed">
+    <span class="i18n-en">Core stack</span>
+    <span class="i18n-th">สแตกหลัก</span>
+    <strong class="block font-heading text-sm sm:text-base font-bold tracking-tight text-white normal-case mt-0.5 sm:mt-1">
+      <span class="i18n-en">Tools I ship with</span>
+      <span class="i18n-th">เครื่องมือหลักที่ใช้จริง</span>
+    </strong>
+  </div>
+
+  <div class="lc-row relative flex flex-wrap gap-x-1 sm:gap-x-1.5 gap-y-2 justify-center items-center min-h-[96px] sm:min-h-[104px]" id="lcRow">
+    {skills.map((item) => (
+      <div class="lc-item flex flex-col items-center gap-1 min-w-0 flex-1 basis-0 text-center cursor-default">
+        {item.slug ? (
+          <div
+            class="w-[42px] h-[42px] sm:w-[48px] sm:h-[48px] rounded-[10px] sm:rounded-[11.5px] flex items-center justify-center p-2.5 sm:p-3 shadow-md shrink-0 my-0.5"
+            style={{ backgroundColor: item.bg || '#242938' }}
+          >
+            <img src={src(item)} alt={`${item.name} logo`} width="28" height="28" class="w-full h-full object-contain block drop-shadow" loading="lazy" />
+          </div>
+        ) : (
+          <img src={src(item)} alt={`${item.name} logo`} width="48" height="48" class="w-[42px] h-[42px] sm:w-[48px] sm:h-[48px] block drop-shadow shrink-0 my-0.5" loading="lazy" />
+        )}
+        <span class="text-[8px] sm:text-[9.5px] font-semibold text-[#c9c2dc] hover:text-white leading-tight transition-colors whitespace-nowrap">{item.name}</span>
+      </div>
+    ))}
+  </div>
+</section>
+
+<style>
+  :global(.logo-cloud.lc-animated .lc-row) {
+    position: relative;
+    flex-wrap: nowrap;
+    min-height: 108px;
+  }
+  :global(.logo-cloud.lc-animated .lc-set) {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 4px;
+    pointer-events: none;
+  }
+  :global(.logo-cloud.lc-animated .lc-set.is-active) {
+    pointer-events: auto;
+  }
+  :global(.logo-cloud.lc-animated .lc-set .lc-item) {
+    opacity: 0;
+    transform: translateY(10px);
+    filter: blur(6px);
+    transition: opacity 0.45s ease, transform 0.45s ease, filter 0.45s ease;
+  }
+  :global(.logo-cloud.lc-animated .lc-set.is-active .lc-item) {
+    opacity: 1;
+    transform: translateY(0);
+    filter: blur(0);
+  }
+</style>
+
+<script>
+  function initLogoCloud() {
+    const reduceMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const lcCloud = document.querySelector('.logo-cloud');
+    const lcRow = document.getElementById('lcRow');
+    if (!lcCloud || !lcRow || reduceMotion) return;
+
+    const lcItems = Array.from(lcRow.querySelectorAll('.lc-item')) as HTMLElement[];
+    const isMobile = window.innerWidth < 640;
+    const PER_SET = isMobile ? 6 : 8;
+    if (lcItems.length <= PER_SET) return;
+
+    const lcSets: HTMLElement[] = [];
+    for (let s = 0; s < lcItems.length; s += PER_SET) {
+      const set = document.createElement('div');
+      set.className = 'lc-set';
+      set.setAttribute('aria-hidden', 'true');
+      lcItems.slice(s, s + PER_SET).forEach((item, i) => {
+        item.style.transitionDelay = `${i * 70}ms`;
+        set.appendChild(item);
+      });
+      lcRow.appendChild(set);
+      lcSets.push(set);
+    }
+    lcCloud.classList.add('lc-animated');
+
+    let lcIdx = 0;
+    let lcTimer: number | null = null;
+
+    const showLcSet = (n: number) => {
+      lcSets.forEach((st, i) => {
+        const on = i === n;
+        st.classList.toggle('is-active', on);
+        st.setAttribute('aria-hidden', on ? 'false' : 'true');
+      });
+    };
+
+    showLcSet(0);
+
+    const startLc = () => {
+      if (lcTimer) return;
+      lcTimer = window.setInterval(() => {
+        lcIdx = (lcIdx + 1) % lcSets.length;
+        showLcSet(lcIdx);
+      }, 1700);
+    };
+
+    const stopLc = () => {
+      if (lcTimer) {
+        clearInterval(lcTimer);
+        lcTimer = null;
+      }
+    };
+
+    startLc();
+    lcCloud.addEventListener('mouseenter', stopLc);
+    lcCloud.addEventListener('mouseleave', startLc);
+    lcCloud.addEventListener('focusin', stopLc);
+    lcCloud.addEventListener('focusout', startLc);
+    document.addEventListener('visibilitychange', () => {
+      if (document.hidden) stopLc();
+      else startLc();
+    });
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initLogoCloud);
+  } else {
+    initLogoCloud();
+  }
+  document.addEventListener('astro:page-load', initLogoCloud);
+</script>

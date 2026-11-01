@@ -1,0 +1,383 @@
+---
+interface Props {
+  colors?: [string, string, string, string];
+  angle?: number;
+  blinds?: number;
+  sway?: number;
+  speed?: number;
+}
+
+const {
+  colors = ['#FFB347', '#FF6B35', '#E9407A', '#5227FF'],
+  angle = 14,
+  blinds = 16,
+  sway = 0.35,
+  speed = 1.0,
+} = Astro.props;
+---
+
+<div class="fixed inset-0 z-0 overflow-hidden pointer-events-none select-none" aria-hidden="true">
+  <canvas
+    id="blinds-canvas"
+    class="fixed inset-0 w-full h-full block z-0 pointer-events-none"
+    data-colors={JSON.stringify(colors)}
+    data-angle={angle}
+    data-blinds={blinds}
+    data-sway={sway}
+    data-speed={speed}
+  ></canvas>
+  <div
+    id="bg-fallback"
+    class="fixed inset-0 z-0 hidden opacity-90 bg-[repeating-linear-gradient(90deg,#ffb347_0_60px,#ff6b35_60px_120px,#e9407a_120px_180px,#5227ff_180px_240px)]"
+  ></div>
+  <div class="fixed inset-0 z-10 pointer-events-none bg-vignette"></div>
+  <div class="fixed inset-0 z-20 pointer-events-none opacity-5 mix-blend-overlay bg-grain"></div>
+</div>
+
+<script>
+  function initBlinds() {
+    const canvas = document.getElementById('blinds-canvas') as HTMLCanvasElement | null;
+    const fallback = document.getElementById('bg-fallback');
+    if (!canvas) return;
+    if ((canvas as any).__blindsInitialized) return;
+    (canvas as any).__blindsInitialized = true;
+
+    let gl: WebGLRenderingContext | null = null;
+    try {
+      gl =
+        (canvas.getContext('webgl', {
+          alpha: false,
+          antialias: true,
+          powerPreference: 'high-performance',
+        }) as WebGLRenderingContext) ||
+        (canvas.getContext('experimental-webgl') as WebGLRenderingContext);
+    } catch (e) {}
+
+    if (!gl) {
+      if (fallback) fallback.style.display = 'block';
+      canvas.style.display = 'none';
+      return;
+    }
+
+    const vert = `
+      attribute vec2 a_pos;
+      void main() { gl_Position = vec4(a_pos, 0.0, 1.0); }
+    `;
+
+    const frag = `
+      precision highp float;
+      uniform vec2 u_res;
+      uniform float u_time;
+      uniform vec2 u_mouse;
+      uniform vec2 u_clickPos;
+      uniform float u_clickTime;
+      uniform vec3 u_c0; uniform vec3 u_c1; uniform vec3 u_c2; uniform vec3 u_c3;
+      uniform float u_angle;
+      uniform float u_blindCount;
+      uniform float u_sway;
+      uniform float u_speed;
+
+      vec3 gradColor(float t){
+        t = clamp(t, 0.0, 1.0);
+        if(t < 0.3333) return mix(u_c0, u_c1, t / 0.3333);
+        else if(t < 0.6666) return mix(u_c1, u_c2, (t - 0.3333) / 0.3333);
+        else return mix(u_c2, u_c3, (t - 0.6666) / 0.3334);
+      }
+      float hash(vec2 p){ return fract(sin(dot(p, vec2(127.1,311.7))) * 43758.5453); }
+
+      void main(){
+        vec2 uv = gl_FragCoord.xy / u_res;
+        vec2 st = uv; st.x *= u_res.x / u_res.y;
+        vec2 m = u_mouse; m.x *= u_res.x / u_res.y;
+        float t = u_time * u_speed;
+
+        // rotate around center
+        vec2 c = vec2(0.5 * u_res.x / u_res.y, 0.5);
+        vec2 p = st - c;
+        float ca = cos(u_angle), sa = sin(u_angle);
+        vec2 rp = mat2(ca, -sa, sa, ca) * p;
+        vec2 rot = rp + c;
+
+        // sway: gentle breeze
+        float breeze = sin(t * 0.7 + rot.y * 2.2) * 0.5 + sin(t * 0.43 + rot.y * 5.0) * 0.5;
+        float swayAmt = u_sway * 0.045;
+        rot.x += breeze * swayAmt * (0.6 + 0.4 * sin(rot.y * 3.14159));
+
+        float bx = rot.x * u_blindCount;
+        float idx = floor(bx);
+        float f = fract(bx);
+
+        // per-blind micro sway / tilt toward light
+        float blindPhase = sin(t * 0.9 + idx * 0.55) * u_sway;
+        f = clamp(f + blindPhase * 0.06, 0.0, 1.0);
+
+        // Responsive color gradient span:
+        // Adapts dynamically to screen aspect ratio so all 4 colors span smoothly from left to right on both desktop and mobile
+        float aspect = u_res.x / u_res.y;
+        float totalVisibleSlats = max(u_blindCount * aspect - 1.0, 1.0);
+        float gt = clamp((idx + f * 0.35) / totalVisibleSlats, 0.0, 1.0);
+        vec3 base = gradColor(gt);
+
+        // satin relief: cylindrical shading across each blind
+        float cyl = sin(f * 3.14159265);
+        float relief = 0.68 + 0.52 * pow(cyl, 1.35);
+
+        // edge shadow + gap between blinds
+        float gap = smoothstep(0.0, 0.06, f) * smoothstep(1.0, 0.94, f);
+        relief *= mix(0.55, 1.0, gap);
+
+        // shine on left edge
+        float shine = exp(-f * 9.0) * 0.55 + exp(-pow(f - 0.18, 2.0) * 90.0) * 0.25;
+
+        vec3 col = base * relief;
+
+        // spotlight following cursor
+        float dist = length(st - m);
+        float radius = 0.45;
+        float spot = pow(clamp(1.0 - dist / radius, 0.0, 1.0), 1.6);
+        col += vec3(1.0, 0.98, 0.95) * spot * (0.20 + shine * 0.4);
+        col += base * spot * 0.15;
+        col *= 1.0 + spot * 0.22 * cyl;
+
+        // click ripple
+        if(u_clickTime > -50.0){
+          float age = u_time - u_clickTime;
+          if(age >= 0.0 && age < 2.2){
+            vec2 cp = u_clickPos; cp.x *= u_res.x / u_res.y;
+            float cd = length(st - cp);
+            float ringR = age * 0.95;
+            float ring = exp(-abs(cd - ringR) * 22.0) * (1.0 - age / 2.2);
+            float slat = 0.75 + 0.25 * sin(idx * 1.7 - age * 14.0);
+            col += vec3(1.0) * ring * 0.55 * slat;
+          }
+        }
+
+        // vignette + depth
+        float vig = 1.0 - 0.32 * pow(length(uv - vec2(0.5, 0.45)) * 1.25, 2.0);
+        col *= clamp(vig, 0.55, 1.0);
+        col *= mix(0.82, 1.05, smoothstep(1.0, 0.55, uv.y));
+
+        // film grain
+        float n = hash(gl_FragCoord.xy + fract(u_time) * 100.0);
+        col += (n - 0.5) * 0.055;
+
+        gl_FragColor = vec4(col, 1.0);
+      }
+    `;
+
+    function compile(type: number, src: string): WebGLShader | null {
+      if (!gl) return null;
+      const s = gl.createShader(type);
+      if (!s) return null;
+      gl.shaderSource(s, src);
+      gl.compileShader(s);
+      if (!gl.getShaderParameter(s, gl.COMPILE_STATUS)) {
+        return null;
+      }
+      return s;
+    }
+
+    const vs = compile(gl.VERTEX_SHADER, vert);
+    const fs = compile(gl.FRAGMENT_SHADER, frag);
+    if (!vs || !fs) {
+      if (fallback) fallback.style.display = 'block';
+      canvas.style.display = 'none';
+      return;
+    }
+
+    const prog = gl.createProgram();
+    if (!prog) return;
+    gl.attachShader(prog, vs);
+    gl.attachShader(prog, fs);
+    gl.linkProgram(prog);
+    if (!gl.getProgramParameter(prog, gl.LINK_STATUS)) {
+      if (fallback) fallback.style.display = 'block';
+      canvas.style.display = 'none';
+      return;
+    }
+    gl.useProgram(prog);
+
+    const buf = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, buf);
+    gl.bufferData(
+      gl.ARRAY_BUFFER,
+      new Float32Array([-1, -1, 1, -1, -1, 1, 1, 1]),
+      gl.STATIC_DRAW
+    );
+    const loc = gl.getAttribLocation(prog, 'a_pos');
+    gl.enableVertexAttribArray(loc);
+    gl.vertexAttribPointer(loc, 2, gl.FLOAT, false, 0, 0);
+
+    const U: Record<string, WebGLUniformLocation | null> = {};
+    [
+      'u_res',
+      'u_time',
+      'u_mouse',
+      'u_clickPos',
+      'u_clickTime',
+      'u_c0',
+      'u_c1',
+      'u_c2',
+      'u_c3',
+      'u_angle',
+      'u_blindCount',
+      'u_sway',
+      'u_speed',
+    ].forEach((name) => {
+      U[name] = gl.getUniformLocation(prog, name);
+    });
+
+    function hexToRgb(h: string): [number, number, number] {
+      h = h.replace('#', '');
+      return [
+        parseInt(h.substring(0, 2), 16) / 255,
+        parseInt(h.substring(2, 4), 16) / 255,
+        parseInt(h.substring(4, 6), 16) / 255,
+      ];
+    }
+
+    // Read attributes or use defaults
+    const rawColors = canvas.dataset.colors;
+    const colors: [string, string, string, string] = rawColors
+      ? JSON.parse(rawColors)
+      : ['#FFB347', '#FF6B35', '#E9407A', '#5227FF'];
+
+    const angleDeg = parseFloat(canvas.dataset.angle || '14');
+    const blindCount = parseFloat(canvas.dataset.blinds || '16');
+    let sway = parseFloat(canvas.dataset.sway || '0.35');
+    let speed = parseFloat(canvas.dataset.speed || '1.0');
+
+    const reduced =
+      window.matchMedia &&
+      window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (reduced) {
+      speed = 0.25;
+      sway = 0.12;
+    }
+
+    const rgb = colors.map(hexToRgb);
+    if (U.u_c0) gl.uniform3f(U.u_c0, rgb[0][0], rgb[0][1], rgb[0][2]);
+    if (U.u_c1) gl.uniform3f(U.u_c1, rgb[1][0], rgb[1][1], rgb[1][2]);
+    if (U.u_c2) gl.uniform3f(U.u_c2, rgb[2][0], rgb[2][1], rgb[2][2]);
+    if (U.u_c3) gl.uniform3f(U.u_c3, rgb[3][0], rgb[3][1], rgb[3][2]);
+
+    const targetMouse = { x: 0.72, y: 0.68 };
+    const smoothMouse = { x: 0.72, y: 0.68 };
+    const clickPos = { x: 0.5, y: 0.5 };
+    let clickTime = -100;
+    const start = performance.now();
+
+    function setFromEvent(clientX: number, clientY: number) {
+      targetMouse.x = clientX / window.innerWidth;
+      targetMouse.y = 1 - clientY / window.innerHeight;
+    }
+
+    let hasPointer = false;
+    let pointerTimeout: number | undefined;
+
+    function onPointerActivity(clientX: number, clientY: number) {
+      hasPointer = true;
+      setFromEvent(clientX, clientY);
+      if (pointerTimeout) clearTimeout(pointerTimeout);
+      // Return to smooth idle drift 3 seconds after touch/pointer ceases
+      pointerTimeout = window.setTimeout(() => {
+        hasPointer = false;
+      }, 3000);
+    }
+
+    window.addEventListener(
+      'pointermove',
+      (e) => {
+        onPointerActivity(e.clientX, e.clientY);
+      },
+      { passive: true }
+    );
+
+    window.addEventListener(
+      'touchmove',
+      (e) => {
+        if (e.touches && e.touches.length > 0) {
+          onPointerActivity(e.touches[0].clientX, e.touches[0].clientY);
+        }
+      },
+      { passive: true }
+    );
+
+    window.addEventListener(
+      'pointerdown',
+      (e) => {
+        const target = e.target as HTMLElement | null;
+        const tag = target?.tagName || '';
+        if (
+          tag === 'A' ||
+          tag === 'BUTTON' ||
+          tag === 'INPUT' ||
+          (target?.closest && target.closest('a, button, input, .lab'))
+        ) {
+          return;
+        }
+        clickPos.x = e.clientX / window.innerWidth;
+        clickPos.y = 1 - e.clientY / window.innerHeight;
+        clickTime = (performance.now() - start) / 1000;
+        onPointerActivity(e.clientX, e.clientY);
+      },
+      { passive: true }
+    );
+
+    function resize() {
+      if (!canvas || !gl) return;
+      const dpr = Math.min(window.devicePixelRatio || 1, 2.0);
+      const w = Math.floor(window.innerWidth * dpr);
+      const h = Math.floor(window.innerHeight * dpr);
+      if (canvas.width !== w || canvas.height !== h) {
+        canvas.width = w;
+        canvas.height = h;
+        gl.viewport(0, 0, w, h);
+      }
+    }
+
+    window.addEventListener('resize', resize, { passive: true });
+    window.addEventListener('orientationchange', resize, { passive: true });
+    resize();
+
+    let last = performance.now();
+    function frame(now: number) {
+      if (!canvas || !gl) return;
+      const dt = Math.min((now - last) / 1000, 0.05);
+      last = now;
+
+      const k = 1 - Math.exp(-dt / 0.15);
+      if (!hasPointer) {
+        const tt = now / 1000;
+        targetMouse.x = 0.5 + Math.sin(tt * 0.22) * 0.28;
+        targetMouse.y = 0.58 + Math.cos(tt * 0.17) * 0.18;
+      }
+      smoothMouse.x += (targetMouse.x - smoothMouse.x) * k;
+      smoothMouse.y += (targetMouse.y - smoothMouse.y) * k;
+
+      const time = (now - start) / 1000;
+      if (U.u_res) gl.uniform2f(U.u_res, canvas.width, canvas.height);
+      if (U.u_time) gl.uniform1f(U.u_time, time);
+      if (U.u_mouse) gl.uniform2f(U.u_mouse, smoothMouse.x, smoothMouse.y);
+      if (U.u_clickPos) gl.uniform2f(U.u_clickPos, clickPos.x, clickPos.y);
+      if (U.u_clickTime) gl.uniform1f(U.u_clickTime, clickTime);
+      if (U.u_angle) gl.uniform1f(U.u_angle, (angleDeg * Math.PI) / 180);
+      if (U.u_blindCount) gl.uniform1f(U.u_blindCount, blindCount);
+      if (U.u_sway) gl.uniform1f(U.u_sway, sway);
+      if (U.u_speed) gl.uniform1f(U.u_speed, speed);
+
+      gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+      requestAnimationFrame(frame);
+    }
+    requestAnimationFrame(frame);
+  }
+
+  // Run on mount and Astro page navigation
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initBlinds);
+  } else {
+    initBlinds();
+  }
+  document.addEventListener('astro:page-load', initBlinds);
+</script>
+

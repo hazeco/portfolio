@@ -1,0 +1,374 @@
+---
+---
+
+<div class="nav-shell sticky top-3 z-40 mt-2.5 sm:mt-3.5 border border-white/10 rounded-2xl backdrop-blur-xl shadow-2xl transition-all duration-300" id="navShell">
+  <header class="flex items-center justify-between gap-2.5 sm:gap-3 px-3.5 sm:px-4 py-2.5 sm:py-3">
+    <!-- Brand -->
+    <a href="#top" data-target-view="home" class="nav-view-link flex items-center gap-2.5 sm:gap-3 no-underline min-w-0 group" aria-label="hazeco home">
+      <span class="leading-tight min-w-0">
+        <strong class="i18n-en block font-heading text-sm sm:text-[15px] font-bold tracking-tight whitespace-nowrap text-white group-hover:text-white transition-colors">Portfolio</strong>
+        <strong class="i18n-th block font-heading text-sm sm:text-[15px] font-bold tracking-tight whitespace-nowrap text-white group-hover:text-white transition-colors">แฟ้มผลงาน</strong>
+        <small class="hidden sm:block font-mono-code text-[11px] text-white uppercase tracking-wider whitespace-nowrap transition-colors">
+          hazeco
+        </small>
+      </span>
+    </a>
+
+    <!-- Desktop Navigation Links (>= lg) -->
+    <nav class="hidden lg:flex items-center gap-1" aria-label="Primary Desktop">
+      <a
+        href="#projects"
+        data-target-view="projects"
+        class="nav-view-link px-3.5 py-1.5 rounded-full text-[13.5px] font-semibold text-[#c9c2dc] hover:text-white hover:bg-white/15 hover:border-white/35 border border-transparent transition-all duration-200 whitespace-nowrap"
+      >
+        <span class="i18n-en">Projects</span>
+        <span class="i18n-th">โปรเจกต์</span>
+      </a>
+      <a
+        href="#skills"
+        data-target-view="skills"
+        class="nav-view-link px-3.5 py-1.5 rounded-full text-[13.5px] font-semibold text-[#c9c2dc] hover:text-white hover:bg-white/15 hover:border-white/35 border border-transparent transition-all duration-200 whitespace-nowrap"
+      >
+        <span class="i18n-en">Skills</span>
+        <span class="i18n-th">ทักษะ</span>
+      </a>
+      <a
+        href="#experience"
+        data-target-view="experience"
+        class="nav-view-link px-3.5 py-1.5 rounded-full text-[13.5px] font-semibold text-[#c9c2dc] hover:text-white hover:bg-white/15 hover:border-white/35 border border-transparent transition-all duration-200 whitespace-nowrap"
+      >
+        <span class="i18n-en">Experience</span>
+        <span class="i18n-th">ประสบการณ์</span>
+      </a>
+      <a
+        href="#faq"
+        data-target-view="faq"
+        class="nav-view-link px-3.5 py-1.5 rounded-full text-[13.5px] font-semibold text-[#c9c2dc] hover:text-white hover:bg-white/15 hover:border-white/35 border border-transparent transition-all duration-200 whitespace-nowrap"
+      >
+        <span class="i18n-en">FAQ</span>
+        <span class="i18n-th">คำถามที่พบบ่อย</span>
+      </a>
+      <!-- Contact Button (Identical to other nav links per user request) -->
+      <a
+        href="#contact"
+        data-target-view="contact"
+        class="nav-view-link px-3.5 py-1.5 rounded-full text-[13.5px] font-semibold text-[#c9c2dc] hover:text-white hover:bg-white/15 hover:border-white/35 border border-transparent transition-all duration-200 whitespace-nowrap"
+      >
+        <span class="i18n-en">Contact</span>
+        <span class="i18n-th">ติดต่อ</span>
+      </a>
+
+      <!-- Desktop Language Toggle Button (Directly after Contact) -->
+      <button
+        type="button"
+        onclick="window.togglePortfolioLanguage && window.togglePortfolioLanguage()"
+        class="lang-toggle-btn flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-mono-code font-bold border border-white/15 bg-white/5 hover:bg-white/15 hover:border-white/35 text-white transition-all cursor-pointer ml-1 active:scale-95"
+        aria-label="Switch language between Thai and English"
+        title="Toggle English / ภาษาไทย"
+      >
+        <svg class="w-3.5 h-3.5 text-white pointer-events-none" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <circle cx="12" cy="12" r="10"></circle>
+          <path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"></path>
+          <path d="M2 12h20"></path>
+        </svg>
+        <span class="lang-pill-en text-white font-semibold pointer-events-none">EN</span>
+        <span class="text-white/30 pointer-events-none">/</span>
+        <span class="lang-pill-th text-white pointer-events-none">TH</span>
+      </button>
+    </nav>
+
+    <!-- Mobile & Tablet Header Controls (< lg) -->
+    <div class="lg:hidden flex items-center gap-2">
+      <!-- Compact Language Button on Header -->
+      <button
+        type="button"
+        onclick="window.togglePortfolioLanguage && window.togglePortfolioLanguage()"
+        class="lang-toggle-btn flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl border border-white/15 bg-white/5 text-white text-xs font-mono-code font-bold hover:bg-white/15 hover:border-white/35 active:scale-95 transition-all cursor-pointer"
+        aria-label="Switch language"
+      >
+        <svg class="w-3.5 h-3.5 text-white pointer-events-none" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <circle cx="12" cy="12" r="10"></circle>
+          <path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"></path>
+          <path d="M2 12h20"></path>
+        </svg>
+        <span class="lang-mobile-label text-white pointer-events-none">EN</span>
+      </button>
+
+      <!-- Hamburger Button (< lg) -->
+      <button
+        id="mobileMenuBtn"
+        class="flex flex-col justify-center items-center w-9 h-9 rounded-xl border border-white/15 bg-white/5 text-white hover:bg-white/15 hover:border-white/35 active:scale-95 transition-all cursor-pointer p-2"
+        type="button"
+        aria-label="Toggle navigation menu"
+        aria-expanded="false"
+        aria-controls="mobileMenu"
+      >
+        <span class="hamburger-line line-1 w-5 h-0.5 bg-white rounded-full transition-all duration-300 mb-1"></span>
+        <span class="hamburger-line line-2 w-5 h-0.5 bg-white rounded-full transition-all duration-300 mb-1"></span>
+        <span class="hamburger-line line-3 w-5 h-0.5 bg-white rounded-full transition-all duration-300"></span>
+      </button>
+    </div>
+  </header>
+
+  <!-- Mobile & Tablet Collapsible Menu (< lg) -->
+  <div
+    id="mobileMenu"
+    class="mobile-menu lg:hidden grid grid-rows-[0fr] transition-[grid-template-rows,opacity] duration-300 ease-out opacity-0 pointer-events-none border-t border-white/0"
+  >
+    <div class="overflow-hidden">
+      <nav class="flex flex-col gap-1.5 px-3.5 pb-4 pt-2" aria-label="Primary Mobile">
+        <a
+          href="#top"
+          data-target-view="home"
+          class="mobile-nav-link flex items-center justify-between px-4 py-2.5 rounded-xl text-sm font-semibold transition-colors border border-white/10 bg-white/5 text-[#e9e2ff] hover:bg-white/15 hover:text-white"
+        >
+          <span>
+            <span class="i18n-en">Home (Bio &amp; About)</span>
+            <span class="i18n-th">หน้าหลัก (ประวัติ &amp; แนะนำตัว)</span>
+          </span>
+          <span class="font-mono-code text-xs text-white">00</span>
+        </a>
+
+        <a
+          href="#projects"
+          data-target-view="projects"
+          class="mobile-nav-link flex items-center justify-between px-4 py-2.5 rounded-xl text-sm font-semibold transition-colors border border-white/10 bg-white/5 text-[#e9e2ff] hover:bg-white/15 hover:text-white"
+        >
+          <span>
+            <span class="i18n-en">Projects &amp; Core Stack</span>
+            <span class="i18n-th">โปรเจกต์ &amp; สแตกหลัก</span>
+          </span>
+          <span class="font-mono-code text-xs text-white">01</span>
+        </a>
+
+        <a
+          href="#skills"
+          data-target-view="skills"
+          class="mobile-nav-link flex items-center justify-between px-4 py-2.5 rounded-xl text-sm font-semibold transition-colors border border-white/10 bg-white/5 text-[#e9e2ff] hover:bg-white/15 hover:text-white"
+        >
+          <span>
+            <span class="i18n-en">Skills &amp; Toolbox</span>
+            <span class="i18n-th">ทักษะ &amp; เครื่องมือ</span>
+          </span>
+          <span class="font-mono-code text-xs text-white">02</span>
+        </a>
+
+        <a
+          href="#experience"
+          data-target-view="experience"
+          class="mobile-nav-link flex items-center justify-between px-4 py-2.5 rounded-xl text-sm font-semibold transition-colors border border-white/10 bg-white/5 text-[#e9e2ff] hover:bg-white/15 hover:text-white"
+        >
+          <span>
+            <span class="i18n-en">Experience &amp; Journey</span>
+            <span class="i18n-th">ประสบการณ์ &amp; เส้นทาง</span>
+          </span>
+          <span class="font-mono-code text-xs text-white">03</span>
+        </a>
+
+        <a
+          href="#faq"
+          data-target-view="faq"
+          class="mobile-nav-link flex items-center justify-between px-4 py-2.5 rounded-xl text-sm font-semibold transition-colors border border-white/10 bg-white/5 text-[#e9e2ff] hover:bg-white/15 hover:text-white"
+        >
+          <span>
+            <span class="i18n-en">FAQ</span>
+            <span class="i18n-th">คำถามที่พบบ่อย</span>
+          </span>
+          <span class="font-mono-code text-xs text-white">04</span>
+        </a>
+
+        <!-- Contact Button in Mobile Menu (Matching subtle border & fill) -->
+        <a
+          href="#contact"
+          data-target-view="contact"
+          class="mobile-nav-link flex items-center justify-between px-4 py-2.5 rounded-xl text-sm font-semibold transition-colors border border-white/10 bg-white/5 text-[#e9e2ff] hover:bg-white/15 hover:text-white"
+        >
+          <span>
+            <span class="i18n-en">Contact</span>
+            <span class="i18n-th">ติดต่อผม</span>
+          </span>
+          <svg class="w-4 h-4 text-[#c9c2dc]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <rect width="20" height="16" x="2" y="4" rx="2"></rect>
+            <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"></path>
+          </svg>
+        </a>
+
+        <!-- Mobile Language Toggle inside Drawer (After Contact) -->
+        <button
+          type="button"
+          onclick="window.togglePortfolioLanguage && window.togglePortfolioLanguage()"
+          class="lang-toggle-btn flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-xs font-mono-code font-bold border border-white/15 bg-white/5 hover:bg-white/15 hover:border-white/35 text-white transition-colors cursor-pointer mt-1"
+          aria-label="Switch language between Thai and English"
+        >
+          <svg class="w-4 h-4 text-white pointer-events-none" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <circle cx="12" cy="12" r="10"></circle>
+            <path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"></path>
+            <path d="M2 12h20"></path>
+          </svg>
+          <span class="text-[#c9c2dc] pointer-events-none">Language:</span>
+          <span class="lang-drawer-label text-white font-bold pointer-events-none">English (EN)</span>
+        </button>
+      </nav>
+    </div>
+  </div>
+</div>
+
+<style>
+  /* Hamburger to 'X' animation */
+  :global(#mobileMenuBtn.is-open .line-1) {
+    transform: translateY(6px) rotate(45deg);
+  }
+  :global(#mobileMenuBtn.is-open .line-2) {
+    opacity: 0;
+    transform: scaleX(0);
+  }
+  :global(#mobileMenuBtn.is-open .line-3) {
+    transform: translateY(-6px) rotate(-45deg);
+  }
+
+  /* Open state for mobile dropdown */
+  :global(#mobileMenu.is-open) {
+    grid-template-rows: 1fr !important;
+    opacity: 1 !important;
+    pointer-events: auto !important;
+    border-color: rgba(255, 255, 255, 0.1) !important;
+  }
+</style>
+
+<script>
+  function setupApp() {
+    const shell = document.getElementById('navShell');
+    const btn = document.getElementById('mobileMenuBtn');
+    const menu = document.getElementById('mobileMenu');
+
+    if (!shell) return;
+
+    // Apply current language UI indicators
+    const currentIsThai = document.documentElement.classList.contains('lang-th') || document.documentElement.getAttribute('data-lang') === 'th';
+    if (typeof (window as any).setPortfolioLanguage === 'function') {
+      (window as any).setPortfolioLanguage(currentIsThai ? 'th' : 'en');
+    }
+
+    /* -------------------------------------------------------------
+     * VIEW SWITCHING (Mobile/Tablet < 1024px) & SCROLL (Desktop >= 1024px)
+     * ----------------------------------------------------------- */
+    let isOpen = false;
+
+    function toggleMenu(open?: boolean) {
+      isOpen = typeof open === 'boolean' ? open : !isOpen;
+      btn?.classList.toggle('is-open', isOpen);
+      menu?.classList.toggle('is-open', isOpen);
+      btn?.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+    }
+
+    if (btn) {
+      btn.onclick = (e) => {
+        e.stopPropagation();
+        toggleMenu();
+      };
+    }
+
+    function setActiveView(viewName: string) {
+      const validViews = ['home', 'projects', 'skills', 'experience', 'faq', 'contact'];
+      const targetView = validViews.includes(viewName) ? viewName : 'home';
+      document.body.setAttribute('data-active-view', targetView);
+
+      // Highlight active in mobile menu
+      document.querySelectorAll('.mobile-nav-link').forEach((link) => {
+        const v = link.getAttribute('data-target-view');
+        if (v === targetView) {
+          link.classList.add('bg-white/20', 'text-white', 'border-white/30');
+          link.classList.remove('bg-white/5', 'text-white', 'border-white/10');
+        } else {
+          link.classList.remove('bg-white/20', 'text-white', 'border-white/30');
+          link.classList.add('bg-white/5', 'text-white', 'border-white/10');
+        }
+      });
+    }
+
+    // Initialize active view from hash or default to 'home'
+    const initialHash = window.location.hash.replace('#', '');
+    const hashToViewMap: Record<string, string> = {
+      'top': 'home',
+      '': 'home',
+      'projects': 'projects',
+      'skills': 'skills',
+      'experience': 'experience',
+      'faq': 'faq',
+      'contact': 'contact',
+    };
+    setActiveView(hashToViewMap[initialHash] || 'home');
+
+    // Handle clicks on all nav links
+    const allNavLinks = document.querySelectorAll('.nav-view-link, .mobile-nav-link');
+    allNavLinks.forEach((link) => {
+      link.addEventListener('click', (e) => {
+        const targetView = link.getAttribute('data-target-view') || 'home';
+        const href = link.getAttribute('href') || '#top';
+        const isDesktop = window.innerWidth >= 1024;
+
+        if (isOpen) {
+          toggleMenu(false);
+        }
+
+        if (isDesktop) {
+          // DESKTOP (>= 1024px): Continuous single page with smooth scroll
+          const targetEl = href === '#top' ? (document.getElementById('top') || document.body) : document.querySelector(href);
+          if (targetEl) {
+            e.preventDefault();
+            if (href === '#top') {
+              window.scrollTo({ top: 0, behavior: 'smooth' });
+            } else {
+              const navHeight = shell.offsetHeight || 60;
+              const topOffset = targetEl.getBoundingClientRect().top + window.pageYOffset - (navHeight + 20);
+              window.scrollTo({
+                top: Math.max(0, topOffset),
+                behavior: 'smooth'
+              });
+            }
+            if (history.pushState) {
+              history.pushState(null, '', href);
+            }
+          }
+        } else {
+          // MOBILE & TABLET (< 1024px): Switch view to only that section and scroll to top
+          e.preventDefault();
+          setActiveView(targetView);
+          window.scrollTo({ top: 0, behavior: 'smooth' });
+          if (history.pushState) {
+            history.pushState(null, '', href);
+          }
+        }
+      });
+    });
+
+    // Close on click outside
+    document.addEventListener('click', (e) => {
+      if (isOpen && !shell.contains(e.target as Node)) {
+        toggleMenu(false);
+      }
+    });
+
+    // Close on Escape key
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && isOpen) {
+        toggleMenu(false);
+      }
+    });
+
+    // Handle window resize
+    window.addEventListener('resize', () => {
+      if (window.innerWidth >= 1024 && isOpen) {
+        toggleMenu(false);
+      }
+    }, { passive: true });
+  }
+
+  // Run on initial load and view transitions
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', setupApp);
+  } else {
+    setupApp();
+  }
+  document.addEventListener('astro:page-load', setupApp);
+</script>
