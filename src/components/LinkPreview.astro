@@ -21,6 +21,111 @@
 </style>
 
 <script>
+  type CacheEntry = {
+    status: 'loading' | 'ok' | 'fail';
+    src: string;
+    callbacks: Array<(ok: boolean) => void>;
+  };
+
+  const previewCache = new Map<string, CacheEntry>();
+  let prefetched = false;
+
+  function getMshotSrc(a: HTMLAnchorElement): string | null {
+    if (a.dataset.previewLock === 'true') return null;
+    if (a.pathname.toLowerCase().endsWith('.pdf')) return null;
+    if (!a.href.startsWith('http')) return null;
+    return 'https://s.wordpress.com/mshots/v1/' + encodeURIComponent(a.href) + '?w=600';
+  }
+
+  function getPreviewSources(a: HTMLAnchorElement): { localSrc: string | null; mshotSrc: string | null } {
+    return {
+      localSrc: a.dataset.previewImg || null,
+      mshotSrc: getMshotSrc(a),
+    };
+  }
+
+  function loadPreview(src: string, onDone?: (ok: boolean) => void) {
+    const existing = previewCache.get(src);
+    if (existing) {
+      if (existing.status === 'ok') {
+        onDone?.(true);
+      } else if (existing.status === 'fail') {
+        onDone?.(false);
+      } else if (onDone) {
+        existing.callbacks.push(onDone);
+      }
+      return;
+    }
+
+    const entry: CacheEntry = {
+      status: 'loading',
+      src,
+      callbacks: onDone ? [onDone] : [],
+    };
+    previewCache.set(src, entry);
+
+    const finish = (ok: boolean) => {
+      entry.status = ok ? 'ok' : 'fail';
+      const cbs = entry.callbacks.splice(0);
+      cbs.forEach((cb) => cb(ok));
+    };
+
+    const probe = new Image();
+    probe.decoding = 'async';
+    probe.onload = () => {
+      if (probe.naturalWidth <= 40) {
+        finish(false);
+        return;
+      }
+      if (typeof probe.decode === 'function') {
+        probe.decode().then(() => finish(true)).catch(() => finish(true));
+      } else {
+        finish(true);
+      }
+    };
+    probe.onerror = () => finish(false);
+    probe.src = src;
+  }
+
+  function schedulePrefetch(links: HTMLAnchorElement[]) {
+    if (prefetched) return;
+    prefetched = true;
+
+    const localSrcs: string[] = [];
+    const priorityMshots: string[] = [];
+    const otherMshots: string[] = [];
+    const seen = new Set<string>();
+
+    for (const a of links) {
+      const { localSrc, mshotSrc } = getPreviewSources(a);
+      if (localSrc && !seen.has(localSrc)) {
+        seen.add(localSrc);
+        localSrcs.push(localSrc);
+      }
+      if (mshotSrc && !seen.has(mshotSrc)) {
+        seen.add(mshotSrc);
+        if (localSrc) {
+          priorityMshots.push(mshotSrc);
+        } else {
+          otherMshots.push(mshotSrc);
+        }
+      }
+    }
+
+    const queue = [...priorityMshots, ...otherMshots];
+
+    window.setTimeout(() => {
+      localSrcs.forEach((src) => loadPreview(src));
+      let i = 0;
+      const next = () => {
+        if (i >= queue.length) return;
+        loadPreview(queue[i++]);
+        if (i < queue.length) window.setTimeout(next, 80);
+      };
+      next();
+    }, 120);
+  }
+
   function initLinkPreview() {
     const lp = document.getElementById('linkPreview');
     const lpImg = document.getElementById('lpImg') as HTMLImageElement | null;
@@ -32,6 +137,8 @@
     const fine = window.matchMedia('(hover: hover) and (pointer: fine)').matches;
 
     if (!lp || !lpImg || !lpFallback || !lpHost || !lpTitle || !lpDesc || !lpNote) return;
+
+    let activeLink: HTMLAnchorElement | null = null;
 
     function describeLink(a: HTMLAnchorElement) {
       const card = a.closest('article, .contact, .skills, footer, div');
@@ -47,8 +154,16 @@
       return { title: title || a.href, desc };
     }
 
+    function applyImage(src: string) {
+      if (!lpImg || !lpNote) return;
+      lpImg.src = src;
+      lpImg.hidden = false;
+      lpNote.hidden = true;
+    }
+
     function showPreview(a: HTMLAnchorElement) {
       if (!fine || !lp || !lpImg || !lpFallback || !lpHost || !lpTitle || !lpDesc || !lpNote) return;
+      activeLink = a;
       const info = describeLink(a);
       const host = a.hostname || a.href;
       lpHost.textContent = host;
@@ -59,20 +174,34 @@
       lpImg.hidden = true;
       lpImg.removeAttribute('src');
 
-      const shot = 'https://s.wordpress.com/mshots/v1/' + encodeURIComponent(a.href) + '?w=600';
-      const probe = new Image();
-      probe.onload = () => {
-        if (probe.naturalWidth > 40) {
-          lpImg.src = shot;
-          lpImg.hidden = false;
-        } else {
+      const { localSrc, mshotSrc } = getPreviewSources(a);
+      const cachedMshot = mshotSrc ? previewCache.get(mshotSrc) : undefined;
+
+      if (cachedMshot?.status === 'ok' && mshotSrc) {
+        applyImage(mshotSrc);
+      } else {
+        if (localSrc) {
+          loadPreview(localSrc, (ok) => {
+            if (activeLink !== a || !ok) return;
+            const latestMshot = mshotSrc ? previewCache.get(mshotSrc) : undefined;
+            if (latestMshot?.status === 'ok') return;
+            applyImage(localSrc);
+          });
+        }
+
+        if (mshotSrc) {
+          loadPreview(mshotSrc, (ok) => {
+            if (activeLink !== a) return;
+            if (ok) {
+              applyImage(mshotSrc);
+            } else if (!localSrc) {
+              lpNote.hidden = false;
+            }
+          });
+        } else if (!localSrc) {
           lpNote.hidden = false;
         }
-      };
-      probe.onerror = () => {
-        lpNote.hidden = false;
-      };
-      probe.src = shot;
+      }
 
       const r = a.getBoundingClientRect();
       const w = 300, h = 288;
@@ -87,18 +216,25 @@
     }
 
     function hidePreview() {
+      activeLink = null;
       if (!lp) return;
       lp.classList.remove('show');
       lp.setAttribute('aria-hidden', 'true');
     }
 
-    document.querySelectorAll('a[target="_blank"]').forEach((el) => {
-      const a = el as HTMLAnchorElement;
+    const links = Array.from(document.querySelectorAll('a[target="_blank"]')) as HTMLAnchorElement[];
+    links.forEach((a) => {
+      if (a.dataset.lpBound) return;
+      a.dataset.lpBound = '1';
       a.addEventListener('mouseenter', () => showPreview(a));
       a.addEventListener('mouseleave', hidePreview);
       a.addEventListener('focus', () => showPreview(a));
       a.addEventListener('blur', hidePreview);
     });
+
+    if (fine && links.length > 0) {
+      schedulePrefetch(links);
+    }
 
     window.addEventListener('scroll', hidePreview, { passive: true });
   }
