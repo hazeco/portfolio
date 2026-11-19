@@ -27,6 +27,34 @@
     callbacks: Array<(ok: boolean) => void>;
   };
 
+  const LOCAL_PREVIEW_BY_URL: Record<string, string> = {
+    'https://a-mph.com': '/previews/amph.webp',
+    'https://easychecks.easycheck.workers.dev': '/previews/easycheck.webp',
+    'https://keystay-web.khetsophon-ain.workers.dev': '/previews/keystay.webp',
+    'https://musicgear-web.thunderwolf2209.workers.dev': '/previews/musicgear.webp',
+    'https://fly-calcium-band.fly-calcium-band.workers.dev': '/previews/fly-calcium-band.webp',
+    'https://github.com/hazeco': '/previews/gh-hazeco.webp',
+    'https://github.com/EasyChecks/easychecks': '/previews/gh-easychecks.webp',
+    'https://github.com/csi204/keystay': '/previews/gh-keystay.webp',
+    'https://github.com/hazeco/CSI402': '/previews/gh-csi402.webp',
+    'https://github.com/csi204/musicgear': '/previews/gh-musicgear.webp',
+    'https://github.com/hazeco/fly-calcium-band': '/previews/gh-fly-calcium-band.webp',
+    'https://github.com/Scramble-Quest/Scramble_Quest': '/previews/gh-scramble-quest.webp',
+    'https://github.com/just-chills/chilltopup': '/previews/gh-chilltopup.webp',
+    'https://github.com/just-chills/fileHandler': '/previews/gh-filehandler.webp',
+  };
+
+  const NO_MSHOT_HOSTS = new Set([
+    'facebook.com',
+    'web.facebook.com',
+    'm.facebook.com',
+    'instagram.com',
+    'www.instagram.com',
+    'linkedin.com',
+    'www.linkedin.com',
+    'discord.com',
+  ]);
+
   const previewCache = new Map<string, CacheEntry>();
   let prefetched = false;
 
@@ -34,12 +62,14 @@
     if (a.dataset.previewLock === 'true') return null;
     if (a.pathname.toLowerCase().endsWith('.pdf')) return null;
     if (!a.href.startsWith('http')) return null;
+    if (NO_MSHOT_HOSTS.has(a.hostname.toLowerCase())) return null;
     return 'https://s.wordpress.com/mshots/v1/' + encodeURIComponent(a.href) + '?w=600';
   }
 
   function getPreviewSources(a: HTMLAnchorElement): { localSrc: string | null; mshotSrc: string | null } {
+    const normalized = a.href.replace(/\/+$/, '');
     return {
-      localSrc: a.dataset.previewImg || null,
+      localSrc: a.dataset.previewImg || LOCAL_PREVIEW_BY_URL[normalized] || null,
       mshotSrc: getMshotSrc(a),
     };
   }
@@ -156,6 +186,13 @@
 
     function applyImage(src: string) {
       if (!lpImg || !lpNote) return;
+      lpImg.onload = () => {
+        const isPortrait = lpImg.naturalHeight > lpImg.naturalWidth;
+        lpImg.classList.toggle('object-contain', isPortrait);
+        lpImg.classList.toggle('bg-[#0e0b18]', isPortrait);
+        lpImg.classList.toggle('object-cover', !isPortrait);
+        lpImg.classList.toggle('object-top', !isPortrait);
+      };
       lpImg.src = src;
       lpImg.hidden = false;
       lpNote.hidden = true;
